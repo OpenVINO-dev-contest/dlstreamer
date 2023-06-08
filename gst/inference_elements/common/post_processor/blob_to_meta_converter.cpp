@@ -92,6 +92,7 @@ size_t getKeypointsNumber(GstStructure *s) {
 std::string checkOnNameDeprecation(const std::string &converter_name) {
     const std::unordered_map<std::string, std::string> deprecatedNameToName = {
         {DetectionOutputConverter::getDepricatedName(), DetectionOutputConverter::getName()},
+        {YOLOv8Converter::getDepricatedName(), YOLOv8Converter::getName()},
         {BoxesLabelsConverter::getDepricatedName(), BoxesLabelsConverter::getName()},
         {YOLOv2Converter::getDepricatedName(), YOLOv2Converter::getName()},
         {YOLOv3Converter::getDepricatedName(), YOLOv3Converter::getName()},

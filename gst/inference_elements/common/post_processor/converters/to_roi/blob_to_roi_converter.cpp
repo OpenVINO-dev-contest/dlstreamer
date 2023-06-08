@@ -39,6 +39,8 @@ BlobToMetaConverter::Ptr BlobToROIConverter::create(BlobToMetaConverter::Initial
 
     if (converter_name == DetectionOutputConverter::getName())
         return BlobToMetaConverter::Ptr(new DetectionOutputConverter(std::move(initializer), confidence_threshold));
+    else if (converter_name == YOLOv8Converter::getName())
+        return BlobToMetaConverter::Ptr(new YOLOv8Converter(std::move(initializer), confidence_threshold));
     else if (converter_name == BoxesLabelsConverter::getName())
         return BlobToMetaConverter::Ptr(new BoxesLabelsConverter(std::move(initializer), confidence_threshold));
     else if (converter_name == BoxesScoresConverter::getName())
