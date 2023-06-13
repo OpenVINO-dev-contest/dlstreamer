@@ -19,6 +19,14 @@
 
 using namespace post_processing;
 
+double getIOUThreshold(GstStructure *s) {
+    double iou_threshold = 0.5;
+    if (gst_structure_has_field(s, "iou_threshold")) {
+        gst_structure_get_double(s, "iou_threshold", &iou_threshold);
+    }
+
+    return iou_threshold;
+}
 
 void YOLOv8Converter::parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &blob,
                                                DetectedObjectsTable &objects) const {
@@ -36,44 +44,43 @@ void YOLOv8Converter::parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &b
                                     " is not supported (less than " +
                                     std::to_string(BlobToROIConverter::min_dims_size) + ").");
 
-    for (size_t i = BlobToROIConverter::min_dims_size + 1; i < dims_size; ++i) {
-        if (dims[dims_size - i] != 1)
-            throw std::invalid_argument("All output blob dimensions, except for object size and max "
-                                        "objects count, must be equal to 1");
-    }
-
-    size_t object_size = dims[dims_size - 1];
+    size_t object_size = dims[dims_size - 2];
     if (object_size != YOLOv8Converter::model_object_size)
         throw std::invalid_argument("Object size dimension of output blob is set to " + std::to_string(object_size) +
                                     ", but only " + std::to_string(YOLOv8Converter::model_object_size) +
                                     " supported.");
 
-    size_t max_proposal_count = dims[dims_size - 2];
+    size_t max_proposal_count = dims[dims_size - 1];
 
     std::vector<int> class_ids;
     std::vector<float> confidences;
     for (size_t i = 0; i < max_proposal_count; ++i) {
-        float *classes_scores = data+4;
-        cv::Mat scores(1, classes.size(), CV_32FC1, classes_scores);
-        cv::Point class_id;
-        double maxClassScore;
+        // float *classes_scores = data+4;
+        // cv::Mat scores(1, classes.size(), CV_32FC1, classes_scores);
+        // cv::Point class_id;
+        // double maxClassScore;
 
-        minMaxLoc(scores, 0, &maxClassScore, 0, &class_id);
+        // cv::minMaxLoc(scores, 0, &maxClassScore, 0, &class_id);
+        double maxClassScore = 0;
+        int idx = 0;
 
-        if (maxClassScore < confidence_threshold) {
-            continue;
+        for (int t = 4; t < max_proposal_count; ++t) {
+            double tp = data[t];
+            if (tp > maxClassScore) {
+                maxClassScore = tp;
+                idx = t;
+            }
         }
-        float x = data[0];
-        float y = data[1];
-        float w = data[2];
-        float h = data[3];
 
-
-        objects.push_back(DetectedObject(x, y, w, h, maxClassScore, class_id.x,
-                                                   getLabelByLabelId(class_id.x)), 1.0f / input_width,
-                          1.0f / input_height, true);
-
-
+        if (maxClassScore > confidence_threshold) {
+            float x = data[0];
+            float y = data[1];
+            float w = data[2];
+            float h = data[3];
+            objects.push_back(DetectedObject(x, y, w, h, maxClassScore, idx-4,
+                                                    getLabelByLabelId(idx-4)), 1.0f / input_width,
+                            1.0f / input_height, true);
+        }
         data += object_size;
     }
 }

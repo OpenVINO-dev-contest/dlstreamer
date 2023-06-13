@@ -26,7 +26,7 @@ class YOLOv8Converter : public BlobToROIConverter {
 
   public:
     YOLOv8Converter(BlobToMetaConverter::Initializer initializer, double confidence_threshold)
-        : BlobToROIConverter(std::move(initializer), confidence_threshold, false, 0.0) {
+        : BlobToROIConverter(std::move(initializer), confidence_threshold, true, 0.4) {
     }
 
     TensorsTable convert(const OutputBlobs &output_blobs) const override;
@@ -41,7 +41,7 @@ class YOLOv8Converter : public BlobToROIConverter {
             if (dims.size() < BlobToROIConverter::min_dims_size)
                 continue;
 
-            if (dims[dims.size() - 1] == YOLOv8Converter::model_object_size) {
+            if (dims[dims.size() - 2] == YOLOv8Converter::model_object_size) {
                 result = true;
                 break;
             }
@@ -52,6 +52,10 @@ class YOLOv8Converter : public BlobToROIConverter {
 
     static std::string getName() {
         return "yolo_v8";
+    }
+
+    static std::string getDepricatedName() {
+        return "tensor_to_bbox_yolo_v8";
     }
 };
 } // namespace post_processing
