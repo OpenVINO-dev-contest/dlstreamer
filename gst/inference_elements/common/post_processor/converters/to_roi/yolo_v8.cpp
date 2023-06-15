@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  ******************************************************************************/
 
-#include "detection_output.h"
+#include "yolo_v8.h"
 
 #include "inference_backend/image_inference.h"
 #include "inference_backend/logger.h"
@@ -55,6 +55,12 @@ void YOLOv8Converter::parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &b
     std::vector<int> class_ids;
     std::vector<float> confidences;
     for (size_t i = 0; i < max_proposal_count; ++i) {
+
+        int image_id = safe_convert<int>(blobElement->imageId);
+        /* check if 'image_id' contains a valid index for 'frames' vector */
+        if (image_id < 0 || (size_t)image_id >= objects.size()) {
+            break;
+        }
         // float *classes_scores = data+4;
         // cv::Mat scores(1, classes.size(), CV_32FC1, classes_scores);
         // cv::Point class_id;
@@ -64,7 +70,7 @@ void YOLOv8Converter::parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &b
         double maxClassScore = 0;
         int idx = 0;
 
-        for (int t = 4; t < max_proposal_count; ++t) {
+        for (size_t t = 4; t < max_proposal_count; ++t) {
             double tp = data[t];
             if (tp > maxClassScore) {
                 maxClassScore = tp;
@@ -77,7 +83,7 @@ void YOLOv8Converter::parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &b
             float y = data[1];
             float w = data[2];
             float h = data[3];
-            objects.push_back(DetectedObject(x, y, w, h, maxClassScore, idx-4,
+            objects[image_id].push_back(DetectedObject(x, y, w, h, maxClassScore, idx-4,
                                                     getLabelByLabelId(idx-4)), 1.0f / input_width,
                             1.0f / input_height, true);
         }

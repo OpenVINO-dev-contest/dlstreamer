@@ -13,6 +13,7 @@
 #include "yolo_v2.h"
 #include "yolo_v3.h"
 #include "yolo_v5.h"
+#include "yolo_v8.h"
 
 #include "inference_backend/logger.h"
 

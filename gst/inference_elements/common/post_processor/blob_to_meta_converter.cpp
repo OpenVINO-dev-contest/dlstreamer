@@ -11,6 +11,7 @@
 #include "converters/to_roi/detection_output.h"
 #include "converters/to_roi/yolo_v2.h"
 #include "converters/to_roi/yolo_v3.h"
+#include "converters/to_roi/yolo_v8.h"
 #include "converters/to_tensor/keypoints_3d.h"
 #include "converters/to_tensor/keypoints_hrnet.h"
 #include "converters/to_tensor/keypoints_openpose.h"
