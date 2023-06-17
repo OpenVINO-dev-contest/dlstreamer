@@ -22,7 +22,8 @@ namespace post_processing {
 class YOLOv8Converter : public BlobToROIConverter {
   protected:
     // FIXME: move roi_scale to coordinates restorer or attacher
-    void parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &blob, DetectedObjectsTable &objects) const;
+    void parseOutputBlob(const float *data, const std::vector<size_t> &dims,
+                                               std::vector<DetectedObject> &objects) const;
 
   public:
     YOLOv8Converter(BlobToMetaConverter::Initializer initializer, double confidence_threshold)

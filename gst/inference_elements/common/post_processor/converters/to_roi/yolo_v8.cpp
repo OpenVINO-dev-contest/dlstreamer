@@ -28,13 +28,9 @@ double getIOUThreshold(GstStructure *s) {
     return iou_threshold;
 }
 
-void YOLOv8Converter::parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &blob,
-                                               DetectedObjectsTable &objects) const {
-    const float *data = reinterpret_cast<const float *>(blob->GetData());
-    if (not data)
-        throw std::invalid_argument("Output blob data is nullptr");
+void YOLOv8Converter::parseOutputBlob(const float *data, const std::vector<size_t> &dims,
+                                               std::vector<DetectedObject> &objects) const {
 
-    auto dims = blob->GetDims();
     size_t dims_size = dims.size();
     size_t input_width = getModelInputImageInfo().width;
     size_t input_height = getModelInputImageInfo().height;
@@ -55,12 +51,6 @@ void YOLOv8Converter::parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &b
     std::vector<int> class_ids;
     std::vector<float> confidences;
     for (size_t i = 0; i < max_proposal_count; ++i) {
-
-        int image_id = safe_convert<int>(blobElement->imageId);
-        /* check if 'image_id' contains a valid index for 'frames' vector */
-        if (image_id < 0 || (size_t)image_id >= objects.size()) {
-            break;
-        }
         // float *classes_scores = data+4;
         // cv::Mat scores(1, classes.size(), CV_32FC1, classes_scores);
         // cv::Point class_id;
@@ -83,9 +73,9 @@ void YOLOv8Converter::parseOutputBlob(const InferenceBackend::OutputBlob::Ptr &b
             float y = data[1];
             float w = data[2];
             float h = data[3];
-            objects[image_id].push_back(DetectedObject(x, y, w, h, maxClassScore, idx-4,
-                                                    getLabelByLabelId(idx-4)), 1.0f / input_width,
-                            1.0f / input_height, true);
+            objects.push_back(DetectedObject(x, y, w, h, maxClassScore, idx-4,
+                                                    getLabelByLabelId(idx-4), 1.0f / input_width,
+                            1.0f / input_height, true));
         }
         data += object_size;
     }
@@ -95,26 +85,27 @@ TensorsTable YOLOv8Converter::convert(const OutputBlobs &output_blobs) const {
     ITT_TASK(__FUNCTION__);
     try {
         const auto &model_input_image_info = getModelInputImageInfo();
-        DetectedObjectsTable objects(model_input_image_info.batch_size);
+        size_t batch_size = model_input_image_info.batch_size;
 
-        const auto &detection_result = getModelProcOutputInfo();
+        DetectedObjectsTable objects_table(batch_size);
 
-        if (detection_result == nullptr)
-            throw std::invalid_argument("detection_result tensor is nullptr");
-        double roi_scale = 1.0;
-        gst_structure_get_double(detection_result.get(), "roi_scale", &roi_scale);
+        for (size_t batch_number = 0; batch_number < batch_size; ++batch_number) {
+            auto &objects = objects_table[batch_number];
 
-        // Check whether we can handle this blob instead iterator
-        for (const auto &blob_iter : output_blobs) {
-            const InferenceBackend::OutputBlob::Ptr &blob = blob_iter.second;
-            if (not blob)
-                throw std::invalid_argument("Output blob is nullptr");
+            for (const auto &blob_iter : output_blobs) {
+                const InferenceBackend::OutputBlob::Ptr &blob = blob_iter.second;
+                if (not blob)
+                    throw std::invalid_argument("Output blob is nullptr.");
 
-            parseOutputBlob(blob, objects, roi_scale);
+                size_t unbatched_size = blob->GetSize() / batch_size;
+                parseOutputBlob(reinterpret_cast<const float *>(blob->GetData()) + unbatched_size * batch_number,
+                                blob->GetDims(), objects);
+            }
         }
 
-        return storeObjects(objects);
+        return storeObjects(objects_table);
     } catch (const std::exception &e) {
-        std::throw_with_nested(std::runtime_error("Failed to do SSD post-processing"));
+        std::throw_with_nested(std::runtime_error("Failed to do YoloV3 post-processing."));
     }
+    return TensorsTable{};
 }
