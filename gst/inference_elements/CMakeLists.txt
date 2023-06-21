@@ -95,7 +95,3 @@ PUBLIC
 if(${ENABLE_VAAPI})
     target_link_libraries(${TARGET_NAME} PRIVATE va_api_wrapper image_inference_async)
 endif()
-
-SET(CMAKE_BUILD_TYPE "Debug")
-SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
-SET(CMAKE_CXX_FLAGS_RELEASE "$ENV{CXXFLAGS} -O3 -Wall")
