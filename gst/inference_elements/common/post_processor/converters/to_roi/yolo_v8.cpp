@@ -19,17 +19,8 @@
 
 using namespace post_processing;
 
-double getIOUThreshold(GstStructure *s) {
-    double iou_threshold = 0.5;
-    if (gst_structure_has_field(s, "iou_threshold")) {
-        gst_structure_get_double(s, "iou_threshold", &iou_threshold);
-    }
-
-    return iou_threshold;
-}
-
 void YOLOv8Converter::parseOutputBlob(const float *data, const std::vector<size_t> &dims,
-                                               std::vector<DetectedObject> &objects) const {
+                                      std::vector<DetectedObject> &objects) const {
 
     size_t dims_size = dims.size();
     size_t input_width = getModelInputImageInfo().width;
@@ -43,41 +34,31 @@ void YOLOv8Converter::parseOutputBlob(const float *data, const std::vector<size_
     size_t object_size = dims[dims_size - 2];
     if (object_size != YOLOv8Converter::model_object_size)
         throw std::invalid_argument("Object size dimension of output blob is set to " + std::to_string(object_size) +
-                                    ", but only " + std::to_string(YOLOv8Converter::model_object_size) +
-                                    " supported.");
+                                    ", but only " + std::to_string(YOLOv8Converter::model_object_size) + " supported.");
 
     size_t max_proposal_count = dims[dims_size - 1];
 
-    std::vector<int> class_ids;
-    std::vector<float> confidences;
+    cv::Mat outputs(object_size, max_proposal_count, CV_32F, (float *)data);
+
+    cv::transpose(outputs, outputs);
+    float *output_data = (float *)outputs.data;
     for (size_t i = 0; i < max_proposal_count; ++i) {
-        // float *classes_scores = data+4;
-        // cv::Mat scores(1, classes.size(), CV_32FC1, classes_scores);
-        // cv::Point class_id;
-        // double maxClassScore;
-
-        // cv::minMaxLoc(scores, 0, &maxClassScore, 0, &class_id);
-        double maxClassScore = 0;
-        int idx = 0;
-
-        for (size_t t = 4; t < max_proposal_count; ++t) {
-            double tp = data[t];
-            if (tp > maxClassScore) {
-                maxClassScore = tp;
-                idx = t;
-            }
-        }
-
+        float *classes_scores = output_data + 4;
+        cv::Mat scores(1, object_size - 4, CV_32FC1, classes_scores);
+        cv::Point class_id;
+        double maxClassScore;
+        cv::minMaxLoc(scores, 0, &maxClassScore, 0, &class_id);
         if (maxClassScore > confidence_threshold) {
-            float x = data[0];
-            float y = data[1];
-            float w = data[2];
-            float h = data[3];
-            objects.push_back(DetectedObject(x, y, w, h, maxClassScore, idx-4,
-                                                    getLabelByLabelId(idx-4), 1.0f / input_width,
-                            1.0f / input_height, true));
+
+            float x = output_data[0];
+            float y = output_data[1];
+            float w = output_data[2];
+            float h = output_data[3];
+            objects.push_back(DetectedObject(x, y, w, h, maxClassScore, class_id.x,
+                                             BlobToMetaConverter::getLabelByLabelId(class_id.x), 1.0f / input_width,
+                                             1.0f / input_height, true));
         }
-        data += object_size;
+        output_data += object_size;
     }
 }
 
@@ -105,7 +86,7 @@ TensorsTable YOLOv8Converter::convert(const OutputBlobs &output_blobs) const {
 
         return storeObjects(objects_table);
     } catch (const std::exception &e) {
-        std::throw_with_nested(std::runtime_error("Failed to do YoloV3 post-processing."));
+        std::throw_with_nested(std::runtime_error("Failed to do YoloV8 post-processing."));
     }
     return TensorsTable{};
 }

@@ -7,7 +7,7 @@
 #pragma once
 
 #include "blob_to_roi_converter.h"
-
+#include <opencv2/opencv.hpp>
 #include "inference_backend/image_inference.h"
 
 #include <gst/gst.h>
