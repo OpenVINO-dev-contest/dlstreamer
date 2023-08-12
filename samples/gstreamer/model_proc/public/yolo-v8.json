@@ -5,7 +5,8 @@
           "precision": "FP32",
           "params": {
               "color_space": "RGB",
-              "range": [ 0.0, 1.0 ]
+              "range": [ 0.0, 1.0 ],
+              "resize": "aspect-ratio"
           }
       }
     ],
