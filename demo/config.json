@@ -1,11 +1,16 @@
 {
-    "number_cameras": 1,
+    "number_cameras": 9,
     "cam_url":{
-      "cam_1" : "video1.mp4",
-      "cam_2" : "video2.mp4",
-      "cam_3" : "video3.mp4",
-      "cam_4" : "video4.mp4"
+      "cam_1" : "/home/ethan/Downloads/pexels_1721294.mp4",
+      "cam_2" : "/home/ethan/Downloads/pexels_1721294.mp4",
+      "cam_3" : "/home/ethan/Downloads/pexels_1721294.mp4",
+      "cam_4" : "/home/ethan/Downloads/pexels_1721294.mp4",
+      "cam_5" : "/home/ethan/Downloads/pexels_1721294.mp4",
+      "cam_6" : "/home/ethan/Downloads/pexels_1721294.mp4",
+      "cam_7" : "/home/ethan/Downloads/pexels_1721294.mp4",
+      "cam_8" : "/home/ethan/Downloads/pexels_1721294.mp4",
+      "cam_9" : "/home/ethan/Downloads/pexels_1721294.mp4"
     },
-    "inference_device": "CPU",
+    "inference_device": "GPU",
     "display": "yes"
   }

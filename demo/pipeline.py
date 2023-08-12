@@ -6,7 +6,7 @@ import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject, GLib
 
-DL_MODEL='"models/yolov8n.xml" model-proc="samples/gstreamer/model_proc/public/yolo-v8.json"'
+DL_MODEL='"/home/ethan/intel/openvino_notebooks/notebooks/230-yolov8-optimization/yolov8n_openvino_model/yolov8n.xml" model-proc="../samples/gstreamer/model_proc/public/yolo-v8.json"'
 
 
 with open("config.json") as file:
@@ -16,13 +16,15 @@ num_cam = config["number_cameras"]
 cams = config["cam_url"]
 display = config["display"]
 target_device = config["inference_device"]
+tracker = "inference-interval=10 ! queue ! gvatrack tracking-type=short-term-imageless"
 decode_element=""
 params=""
 
 if (target_device == "GPU"):
     target_device = "GPU"
-    decode_element = "decodebin "
-    params=" nireq=8 ! gvawatermark "
+    decode_element = " decodebin "
+    params=" nireq=9 ! gvawatermark "
+    # params=" nireq=9 inference-interval=5 ! queue ! gvatrack tracking-type=short-term-imageless ! queue ! gvawatermark "
 else:
     target_device="CPU"
     decode_element = "decodebin"
@@ -30,8 +32,8 @@ else:
 
 if (type(num_cam) == str):
     print(f"    \nnumber_cameras should only be integer value\n")
-elif(num_cam > 8):
-    print(f'Demo currently supportls 8 streams only')
+elif(num_cam > 9):
+    print(f'Demo currently supportls 9 streams only')
 else:
         composite_sinks = {
             1:"sink_1::alpha=1", 
@@ -41,7 +43,8 @@ else:
             5:"sink_1::xpos=0 sink_2::xpos=640 sink_3::ypos=360 sink_4::xpos=640 sink_4::ypos=360 sink_5::xpos=1280",
             6:"sink_1::xpos=0 sink_2::xpos=640 sink_3::ypos=360 sink_4::xpos=640 sink_4::ypos=360 sink_5::xpos=1280 sink_6::xpos=1280 sink_6::ypos=360",
             7:"sink_1::xpos=0 sink_2::xpos=640 sink_3::ypos=360 sink_4::xpos=640 sink_4::ypos=360 sink_5::xpos=1280 sink_6::xpos=1280 sink_6::ypos=360 sink_7::ypos=720",
-            8:"sink_1::xpos=0 sink_2::xpos=640 sink_3::ypos=360 sink_4::xpos=640 sink_4::ypos=360 sink_5::xpos=1280 sink_6::xpos=1280 sink_6::ypos=360 sink_7::ypos=720 sink_8::xpos=640 sink_8::ypos=720"
+            8:"sink_1::xpos=0 sink_2::xpos=640 sink_3::ypos=360 sink_4::xpos=640 sink_4::ypos=360 sink_5::xpos=1280 sink_6::xpos=1280 sink_6::ypos=360 sink_7::ypos=720 sink_8::xpos=640 sink_8::ypos=720",
+            9:"sink_1::xpos=0 sink_2::xpos=640 sink_3::ypos=360 sink_4::xpos=640 sink_4::ypos=360 sink_5::xpos=1280 sink_6::xpos=1280 sink_6::ypos=360 sink_7::ypos=720 sink_8::xpos=640 sink_8::ypos=720 sink_9::xpos=1280 sink_9::ypos=720"
             }
         scales = {
             1:"video/x-raw,width=1280,height=720", 
@@ -51,7 +54,8 @@ else:
             5:"video/x-raw,width=640,height=360",
             6:"video/x-raw,width=640,height=360",
             7:"video/x-raw,width=640,height=360",
-            8:"video/x-raw,width=640,height=360"
+            8:"video/x-raw,width=640,height=360",
+            9:"video/x-raw,width=640,height=360"
             }
 
         csink = composite_sinks[num_cam]
@@ -61,7 +65,7 @@ else:
         
         if (display == "yes"):
             if(target_device=="GPU"):
-                dsink = "videoconvert ! fpsdisplaysink video-sink=ximagesink sync=false"
+                dsink = "videoconvert ! fpsdisplaysink video-sink=vaapisink sync=false"
             else:
                 dsink = "videoconvert ! fpsdisplaysink video-sink=xvimagesink sync=false"
         else:
