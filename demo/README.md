@@ -8,7 +8,7 @@
 
 2. Run container
     
-    for a dGPU, please switch ```renderD128``` with ```renderD129```
+    You can also switch it with your second GPU by ```renderD128``` --> ```renderD129```
     ```
     $ DEVICE=${DEVICE:-/dev/dri/renderD128}
     ```
