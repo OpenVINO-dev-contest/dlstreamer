@@ -6,8 +6,6 @@ import gi
 gi.require_version('Gst', '1.0')
 from gi.repository import Gst, GObject, GLib
 
-DL_MODEL='"/home/ethan/intel/openvino_notebooks/notebooks/230-yolov8-optimization/yolov8n_openvino_model/yolov8n.xml" model-proc="../samples/gstreamer/model_proc/public/yolo-v8.json"'
-
 
 with open("config.json") as file:
     config = json.load(file)
@@ -22,12 +20,14 @@ params=""
 
 if (target_device == "GPU"):
     target_device = "GPU"
-    decode_element = " decodebin "
-    params=" nireq=9 ! gvawatermark "
+    decode_element = " decodebin ! video/x-raw(memory:VASurface) "
+    DL_MODEL='"/home/dlstreamer/models/yolov8n_int8_ppp.xml" model-proc="/home/dlstreamer/dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json" pre-process-backend=vaapi-surface-sharing'
+    params=" nireq=2 ! gvawatermark "
     # params=" nireq=9 inference-interval=5 ! queue ! gvatrack tracking-type=short-term-imageless ! queue ! gvawatermark "
 else:
     target_device="CPU"
     decode_element = "decodebin"
+    DL_MODEL='"/home/dlstreamer/models/yolov8n_int8_ppp.xml" model-proc="/home/dlstreamer/dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json"'
     params=" ! gvawatermark"
 
 if (type(num_cam) == str):
@@ -47,8 +47,8 @@ else:
             9:"sink_1::xpos=0 sink_2::xpos=640 sink_3::ypos=360 sink_4::xpos=640 sink_4::ypos=360 sink_5::xpos=1280 sink_6::xpos=1280 sink_6::ypos=360 sink_7::ypos=720 sink_8::xpos=640 sink_8::ypos=720 sink_9::xpos=1280 sink_9::ypos=720"
             }
         scales = {
-            1:"video/x-raw,width=1280,height=720", 
-            2:"video/x-raw,width=640,height=480", 
+            1:"video/x-raw,width=640,height=360", 
+            2:"video/x-raw,width=640,height=360", 
             3:"video/x-raw,width=640,height=360", 
             4:"video/x-raw,width=640,height=360",
             5:"video/x-raw,width=640,height=360",
@@ -65,7 +65,7 @@ else:
         
         if (display == "yes"):
             if(target_device=="GPU"):
-                dsink = "videoconvert ! fpsdisplaysink video-sink=vaapisink sync=false"
+                dsink = "videoconvert ! fpsdisplaysink video-sink=xvimagesink sync=false"
             else:
                 dsink = "videoconvert ! fpsdisplaysink video-sink=xvimagesink sync=false"
         else:
