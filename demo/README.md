@@ -33,6 +33,15 @@
     snake7gun/yolo-v8 /bin/bash
     ```
 
+    For dGPU, please run container by:
+
+    ```
+    $ docker run -it --rm --net=host -e no_proxy=$no_proxy -e https_proxy=$https_proxy -e socks_proxy=$socks_proxy -e http_proxy=$http_proxy \
+    -v ~/.Xauthority:/home/dlstreamer/.Xauthority -v /tmp/.X11-unix -e DISPLAY=$DISPLAY \
+    --device $DEVICE --group-add $DEVICE_GRP \
+    snake7gun/yolov8-dgpu /bin/bash
+    ```
+
 4. Run single channel sample in container
 
     ```
