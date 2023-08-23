@@ -49,11 +49,12 @@
     ```
 
     For dGPU, please run container by:
-
+   
+   ```
    $ gst-launch-1.0 filesrc location=./pexels_1721294.mp4 ! decodebin ! video/x-raw\(memory:VASurface\) ! gvadetect model=./models/yolov8n_int8_ppp.xml model_proc=./dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json pre-process-backend=vaapi-surface-sharing device=GPU ! queue ! meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! videoconvert ! fpsdisplaysink video-sink=ximagesink sync=false
     ```
 
-4. Run multiple channel demo in container
+5. Run multiple channel demo in container
 
     ```
     $ cd dlstreamer_gst/demo/
