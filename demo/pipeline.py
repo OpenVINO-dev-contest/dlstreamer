@@ -20,9 +20,11 @@ params=""
 
 if (target_device == "GPU"):
     target_device = "GPU"
+    batch_size = " batch-size=" + str(num_cam)
+    nireq = " nireq=2"
     decode_element = " decodebin ! video/x-raw(memory:VASurface) "
     DL_MODEL='"/home/dlstreamer/models/yolov8n_int8_ppp.xml" model-proc="/home/dlstreamer/dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json" pre-process-backend=vaapi-surface-sharing'
-    params=" nireq=2 ! gvawatermark "
+    params=batch_size + nireq + " model-instance-id=1 ! meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 "
     # params=" nireq=9 inference-interval=5 ! queue ! gvatrack tracking-type=short-term-imageless ! queue ! gvawatermark "
 else:
     target_device="CPU"
