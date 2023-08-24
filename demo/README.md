@@ -22,7 +22,7 @@
 ## 2. Pull docker images(optional)
 
    ```
-   $ docker pull snake7gun/yolo-v8:latest
+   $ docker pull snake7gun/yolov8-dpcpp:latest
    ```
 
    For dGPU:
@@ -37,7 +37,7 @@
    $ docker run -it --rm --net=host -e no_proxy=$no_proxy -e https_proxy=$https_proxy -e socks_proxy=$socks_proxy -e http_proxy=$http_proxy \
    -v ~/.Xauthority:/home/dlstreamer/.Xauthority -v /tmp/.X11-unix -e DISPLAY=$DISPLAY \
    --device $DEVICE --group-add $DEVICE_GRP \
-   snake7gun/yolo-v8 /bin/bash
+   snake7gun/yolov8-dpcpp /bin/bash
    ```
    
    For dGPU, please run container by:
