@@ -40,7 +40,7 @@ case ${NUM_PANES} in
     PANE_WIDTH=$((${RES_WIDTH}/3))
     PANE_HEIGHT=$((${RES_HEIGHT}/3))
     function compositor(){
-        echo " vaapioverlay name=comp0 \
+        echo " compositor name=comp0 \
         \
         sink_0::xpos=0                    sink_0::ypos=0                 sink_0::alpha=1 \
         sink_1::xpos=$((${PANE_WIDTH}*1)) sink_1::ypos=0                 sink_1::alpha=1 \
@@ -65,21 +65,22 @@ esac
 
 function sub_pipeline() {
     sub_pipe="filesrc location=${VIDEO} ! "
+#    sub_pipe="urisourcebin buffer-size=4096 uri=${VIDEO} ! "
 #    sub_pipe="rtspsrc location=rtsp://10.3.233.52:8554/CH001.sdp onvif-mode=true ! "
 #    sub_pipe+="rtponvifparse ! application/x-rtp,media=video ! "
     sub_pipe+="decodebin ! video/x-raw(memory:VASurface) ! "
     sub_pipe+="gvadetect model=${MODEL} model_proc=${MODEL_PROC} "
-    sub_pipe+="ie-config=CACHE_DIR=./cl_cache "
-    sub_pipe+="nireq=2 batch-size=4 "
+    # sub_pipe+="ie-config=CACHE_DIR=./cl_cache "
+    sub_pipe+="nireq=2 batch-size=${NUM_PANES} model-instance-id=1 "
     sub_pipe+="pre-process-backend=vaapi-surface-sharing device=GPU ! "
     sub_pipe+="queue ! "
-    sub_pipe+="gvawatermark ! video/x-raw,width=${PANE_WIDTH},height=${PANE_HEIGHT} "
+    sub_pipe+="meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! video/x-raw,width=${PANE_WIDTH},height=${PANE_HEIGHT} "
     echo ${sub_pipe}
 }
 
 pipeline="$(compositor) ! "
-pipeline+="gvafpscounter ! "
-pipeline+="videoconvert ! fpsdisplaysink video-sink=xvimagesink sync=false "
+# pipeline+="gvafpscounter ! "
+pipeline+="videoconvert ! fpsdisplaysink video-sink=ximagesink sync=false "
 
 for i in `seq 0 $((${NUM_PANES}-1))`; do
     pipeline+="$(sub_pipeline) ! "
