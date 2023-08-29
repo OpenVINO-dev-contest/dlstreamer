@@ -1,7 +1,6 @@
 #!/bin/bash
-
-VIDEO=${1:-$HOME/pexels_1721294.mp4}
-NUM_PANES=${2:-1}
+VIDEO=(${*})
+NUM_PANES=$#
 shift 2
 
 source $HOME/dlstreamer_gst/scripts/setup_env.sh
@@ -64,10 +63,6 @@ case ${NUM_PANES} in
 esac
 
 function sub_pipeline() {
-    sub_pipe="filesrc location=${VIDEO} ! "
-#    sub_pipe="urisourcebin buffer-size=4096 uri=${VIDEO} ! "
-#    sub_pipe="rtspsrc location=rtsp://10.3.233.52:8554/CH001.sdp onvif-mode=true ! "
-#    sub_pipe+="rtponvifparse ! application/x-rtp,media=video ! "
     sub_pipe+="decodebin ! video/x-raw(memory:VASurface) ! "
     sub_pipe+="gvadetect model=${MODEL} model_proc=${MODEL_PROC} "
     # sub_pipe+="ie-config=CACHE_DIR=./cl_cache "
@@ -83,6 +78,10 @@ pipeline="$(compositor) ! "
 pipeline+="videoconvert ! fpsdisplaysink video-sink=ximagesink sync=false "
 
 for i in `seq 0 $((${NUM_PANES}-1))`; do
+    pipeline+="filesrc location=${VIDEO[${i}]} ! "
+#    pipeline+="urisourcebin buffer-size=4096 uri=${VIDEO} ! "
+#    pipeline+="rtspsrc location=rtsp://10.3.233.52:8554/CH001.sdp onvif-mode=true ! "
+#    pipeline+="rtponvifparse ! application/x-rtp,media=video ! "
     pipeline+="$(sub_pipeline) ! "
     pipeline+="queue ! "
     pipeline+="comp0.sink_${i} "
