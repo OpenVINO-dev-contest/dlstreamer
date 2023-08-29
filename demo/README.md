@@ -67,6 +67,7 @@
    gst-launch-1.0 filesrc location=./TownCentreXVID.mp4 ! decodebin ! video/x-raw\(memory:VASurface\) ! gvadetect model=./models/yolov8n_int8_ppp.xml model_proc=./dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json pre-process-backend=vaapi-surface-sharing device=GPU ! queue ! meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! videoconvert ! vaapih264enc ! h264parse ! mpegtsmux ! rtpmp2tpay ! udpsink host=192.168.3.9 port=5004
    ```
 
+   To further improve the performance on iGPU, you can switch the ```meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25``` with ```gvawatermark```
 
 ## 5. Run multiple channel demo in container
 
