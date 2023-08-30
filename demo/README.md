@@ -77,12 +77,11 @@
    
    ```
    $ python3 pipeline.py
-
    ```
 
    or
 
-      ```
+   ```
    $ ./pipeline.sh ~/pexels_1721294.mp4 ~/pexels_1721294.mp4 ~/pexels_1721294.mp4
 
    ```
