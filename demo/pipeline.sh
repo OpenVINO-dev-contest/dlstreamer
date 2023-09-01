@@ -1,6 +1,8 @@
 #!/bin/bash
 VIDEO=(${*})
 NUM_PANES=$#
+STREAM=2
+
 shift 2
 
 source $HOME/dlstreamer_gst/scripts/setup_env.sh
@@ -66,7 +68,7 @@ function sub_pipeline() {
     sub_pipe+="decodebin ! video/x-raw(memory:VASurface) ! "
     sub_pipe+="gvadetect model=${MODEL} model_proc=${MODEL_PROC} "
     # sub_pipe+="ie-config=CACHE_DIR=./cl_cache "
-    sub_pipe+="nireq=8 gpu-throughput-streams=2 batch-size=$((${NUM_PANES}/2)) model-instance-id=1 "
+    sub_pipe+="nireq=$((${STREAM}*2)) gpu-throughput-streams=${STREAM} batch-size=$((${NUM_PANES}/${STREAM})) model-instance-id=1 "
     sub_pipe+="pre-process-backend=vaapi-surface-sharing device=GPU ! "
     sub_pipe+="queue ! "
     sub_pipe+="meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! video/x-raw,width=${PANE_WIDTH},height=${PANE_HEIGHT} "
@@ -74,14 +76,19 @@ function sub_pipeline() {
 }
 
 pipeline="$(compositor) ! "
-# pipeline+="gvafpscounter ! "
-# pipeline+="gvafpscounter ! fakesink sync=false "
-pipeline+="videoconvert ! fpsdisplaysink video-sink=ximagesink sync=false "
-# pipeline+="videoconvert ! vaapih264enc ! h264parse ! mpegtsmux ! rtpmp2tpay ! udpsink host=192.168.3.9 port=5004
+pipeline+="gvafpscounter ! "
+pipeline+="gvafpscounter ! fakesink sync=false "
+# pipeline+="videoconvert ! fpsdisplaysink video-sink=ximagesink sync=false "
+# pipeline+="videoconvert ! vaapih264enc ! h264parse ! mpegtsmux ! rtpmp2tpay ! udpsink host=192.168.3.9 port=5004 "
 
 for i in `seq 0 $((${NUM_PANES}-1))`; do
-    pipeline+="filesrc location=${VIDEO[${i}]} ! "
-#    pipeline+="urisourcebin buffer-size=4096 uri=${VIDEO} ! "
+    if [[ $INPUT == "/dev/video"* ]]; then
+        pipeline+="v4l2src device=${VIDEO[${i}]} ! "
+    elif [[ $INPUT == *"://"* ]]; then
+        pipeline+="urisourcebin buffer-size=4096 uri=${VIDEO[${i}]} ! "
+    else
+        pipeline+="filesrc location=${VIDEO[${i}]} ! "
+    fi
 #    pipeline+="rtspsrc location=rtsp://10.3.233.52:8554/CH001.sdp onvif-mode=true ! "
 #    pipeline+="rtponvifparse ! application/x-rtp,media=video ! "
     pipeline+="$(sub_pipeline) ! "
