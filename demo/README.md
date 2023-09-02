@@ -80,3 +80,5 @@
    $ ./pipeline.sh ~/pexels_1721294.mp4 ~/pexels_1721294.mp4 ~/pexels_1721294.mp4
 
    ```
+
+   You can change this [parameter](https://github.com/OpenVINO-dev-contest/dlstreamer/blob/yolov8/demo/pipeline.sh#L4) in your docker container, to optimize the performance according to worklord and HW spec
