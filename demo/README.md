@@ -57,13 +57,13 @@
    
    
    ```
-   $ gst-launch-1.0 filesrc location=./pexels_1721294.mp4 ! decodebin ! video/x-raw\(memory:VASurface\) ! gvadetect model=./models/yolov8n_int8_ppp.xml model_proc=./dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json pre-process-backend=vaapi-surface-sharing device=GPU ! queue ! meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! videoconvert ! fpsdisplaysink video-sink=ximagesink sync=false
+   $ gst-launch-1.0 filesrc location=./TownCentreXVID.mp4 ! decodebin ! video/x-raw\(memory:VASurface\) ! gvadetect model=./models/yolov8n_int8_ppp.xml model_proc=./dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json pre-process-backend=vaapi-surface-sharing device=GPU ! queue ! meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! videoconvert ! fpsdisplaysink video-sink=ximagesink sync=false
    ```
 
    To test the performance:
    
    ```
-   $ gst-launch-1.0 filesrc location=./pexels_1721294.mp4 ! decodebin ! video/x-raw\(memory:VASurface\) ! gvadetect model=./models/yolov8n_int8_ppp.xml model_proc=./dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json pre-process-backend=vaapi-surface-sharing device=GPU ! queue ! meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! gvafpscounter ! fakesink sync=false 
+   $ gst-launch-1.0 filesrc location=./TownCentreXVID.mp4 ! decodebin ! video/x-raw\(memory:VASurface\) ! gvadetect model=./models/yolov8n_int8_ppp.xml model_proc=./dlstreamer_gst/samples/gstreamer/model_proc/public/yolo-v8.json pre-process-backend=vaapi-surface-sharing device=GPU ! queue ! meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! gvafpscounter ! fakesink sync=false 
    ```
 
    To push the stream to specific address, e.g ```rtp://192.168.3.9:5004```, you can run:
@@ -83,7 +83,7 @@
    
 
    ```
-   $ ./pipeline.sh ~/pexels_1721294.mp4 ~/pexels_1721294.mp4 ~/pexels_1721294.mp4
+   $ ./pipeline.sh ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4
 
    ```
 
