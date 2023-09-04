@@ -98,6 +98,7 @@ function sub_pipeline() {
     sub_pipe+="gvadetect model=${MODEL} model_proc=${MODEL_PROC} "
     # sub_pipe+="ie-config=CACHE_DIR=./cl_cache "
     sub_pipe+="nireq=$((${STREAM}*2)) gpu-throughput-streams=${STREAM} batch-size=${NUM_PANES} model-instance-id=1 "
+    # sub_pipe+="ie-config=PERFORMANCE_HINT=LATENCY model-instance-id=1 "
     sub_pipe+="pre-process-backend=vaapi-surface-sharing device=GPU ! "
     sub_pipe+="queue ! "
     sub_pipe+="meta_overlay device=GPU preprocess-queue-size=25 process-queue-size=25 postprocess-queue-size=25 ! video/x-raw,width=${PANE_WIDTH},height=${PANE_HEIGHT} "
