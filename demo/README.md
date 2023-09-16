@@ -22,31 +22,16 @@
 ## 2. Pull docker images(optional)
 
    ```
-   $ docker pull snake7gun/yolov8-dpcpp:latest
+   $ docker pull snake7gun/dlstreamer-yolov8:latest
    ```
 
-   For dGPU:
-   
-   ```
-   $ docker pull snake7gun/yolov8-dgpu:latest
-   ```
-    
 ## 3. Run container
    
    ```
    $ docker run -it --rm --net=host -e no_proxy=$no_proxy -e https_proxy=$https_proxy -e socks_proxy=$socks_proxy -e http_proxy=$http_proxy \
    -v ~/.Xauthority:/home/dlstreamer/.Xauthority -v /tmp/.X11-unix -e DISPLAY=$DISPLAY \
    --device $DEVICE --group-add $DEVICE_GRP \
-   snake7gun/yolov8-dpcpp /bin/bash
-   ```
-   
-   For dGPU, please run container by:
-   
-   ```
-   $ docker run -it --rm --net=host -e no_proxy=$no_proxy -e https_proxy=$https_proxy -e socks_proxy=$socks_proxy -e http_proxy=$http_proxy \
-   -v ~/.Xauthority:/home/dlstreamer/.Xauthority -v /tmp/.X11-unix -e DISPLAY=$DISPLAY \
-   --device $DEVICE --group-add $DEVICE_GRP \
-   snake7gun/yolov8-dgpu /bin/bash
+   snake7gun/dlstreamer-yolov8 /bin/bash
    ```
 
 ## 4. Run single channel sample in container
@@ -81,10 +66,16 @@
    $ cd dlstreamer_gst/demo/
    ```
    
-
+   For iGPU:
+   
    ```
-   $ ./pipeline.sh ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4
-
+   $ ./pipeline-igpu.sh ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4
    ```
 
+   For dGPU:
+   
+   ```
+   $ ./pipeline-dgpu.sh ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4 ~/TownCentreXVID.mp4
+   ```
+   
    You can change this [parameter](https://github.com/OpenVINO-dev-contest/dlstreamer/blob/yolov8/demo/pipeline.sh#L4) in your docker container, to optimize the performance according to worklord and HW spec
