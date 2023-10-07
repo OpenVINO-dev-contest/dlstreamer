@@ -1,0 +1,16 @@
+{
+  "number_cameras": 9,
+  "cam_url":{
+    "cam_1" : "/home/dlstreamer/TownCentreXVID.mp4",
+    "cam_2" : "/home/dlstreamer/TownCentreXVID.mp4",
+    "cam_3" : "/home/dlstreamer/TownCentreXVID.mp4",
+    "cam_4" : "/home/dlstreamer/TownCentreXVID.mp4",
+    "cam_5" : "/home/dlstreamer/TownCentreXVID.mp4",
+    "cam_6" : "/home/dlstreamer/TownCentreXVID.mp4",
+    "cam_7" : "/home/dlstreamer/TownCentreXVID.mp4",
+    "cam_8" : "/home/dlstreamer/TownCentreXVID.mp4",
+    "cam_9" : "/home/dlstreamer/TownCentreXVID.mp4"
+  },
+  "inference_device": "GPU",
+  "display": "yes"
+}
